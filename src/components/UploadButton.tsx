@@ -4,6 +4,9 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Button } from "./ui/button";
 
+import UploadDropzone from "./UploadDropzone";
+import { trpc } from "@/app/_trpc/client";
+import { useRouter } from "next/navigation";
 const UploadButton = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -19,7 +22,9 @@ const UploadButton = () => {
       <DialogTrigger asChild onClick={() => setIsOpen(true)}>
         <Button>Upload PDF</Button>
       </DialogTrigger>
-      <DialogContent>Exmple</DialogContent>
+      <DialogContent>
+        <UploadDropzone />
+      </DialogContent>
     </Dialog>
   );
 };

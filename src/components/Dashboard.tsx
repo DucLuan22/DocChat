@@ -56,7 +56,7 @@ const Dashboard = () => {
                     <div className="flex-1 truncate">
                       <div className="flex items-center space-x-3">
                         <div className="truncate text-lg font-medium text-zinc-900">
-                          mocked
+                          {file.name}
                         </div>
                       </div>
                     </div>
