@@ -4,6 +4,23 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { privateProcedure, publicProcedure, router } from "./trpc";
 import { z } from "zod";
 export const appRouter = router({
+  getFileUploadStatus: privateProcedure
+    .input(z.object({ fileId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const file = await db.file.findFirst({
+        where: {
+          id: input.fileId,
+          userId: ctx.userId,
+        },
+      });
+
+      if (!file) {
+        return { status: "PENDING" as const };
+      }
+
+      return { status: file.uploadStatus };
+    }),
+
   authCallback: publicProcedure.query(async () => {
     const { getUser } = getKindeServerSession();
 

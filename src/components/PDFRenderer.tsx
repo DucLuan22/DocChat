@@ -6,6 +6,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import {
   ChevronDown,
   ChevronUp,
+  Loader,
   Loader2,
   RotateCw,
   Search,
@@ -26,6 +27,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import PDFFullscreen from "./PDFFullscreen";
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 interface PdfRendererProps {
@@ -39,6 +42,8 @@ const PDFRenderer = ({ url }: PdfRendererProps) => {
   const [currPage, setCurrPage] = useState<number>(1);
   const { width, ref } = useResizeDetector();
   const [scale, setScale] = useState<number>(1);
+  const [renderedScale, setRenderedScale] = useState<number | null>(null);
+  const isLoading = renderedScale !== scale;
 
   const [rotation, setRotation] = useState<number>(0);
   const CustomPageValidatior = z.object({
@@ -63,10 +68,12 @@ const PDFRenderer = ({ url }: PdfRendererProps) => {
 
   const handlePreviousPage = () => {
     setCurrPage((prev) => (prev - 1 > 1 ? prev - 1 : 1));
+    setValue("page", String(currPage - 1));
   };
 
   const handleNextPage = () => {
     setCurrPage((prev) => (prev + 1 > numPages! ? numPages! : prev + 1));
+    setValue("page", String(currPage + 1));
   };
 
   const handlePageSubmit = ({ page }: TCustomPageValidator) => {
@@ -147,6 +154,7 @@ const PDFRenderer = ({ url }: PdfRendererProps) => {
           >
             <RotateCw className="w-4 h-4" />
           </Button>
+          <PDFFullscreen fileUrl={url} />
         </div>
       </div>
 
@@ -172,11 +180,28 @@ const PDFRenderer = ({ url }: PdfRendererProps) => {
               }
               file={url}
             >
+              {isLoading && renderedScale ? (
+                <Page
+                  pageNumber={currPage}
+                  width={width ? width : 1}
+                  scale={scale}
+                  rotate={rotation}
+                  key={"@" + renderedScale}
+                />
+              ) : null}
               <Page
                 pageNumber={currPage}
                 width={width ? width : 1}
                 scale={scale}
                 rotate={rotation}
+                className={cn(isLoading ? "hidden" : "")}
+                key={"@" + scale}
+                loading={
+                  <div>
+                    <Loader2 className="my-24 h-4 w-6 animate-spin" />
+                  </div>
+                }
+                onRenderSuccess={() => setRenderedScale(scale)}
               />
             </Document>
           </div>
